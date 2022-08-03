@@ -52,7 +52,9 @@ class WordList():
         with open(filename_possible) as file:
             self.possible_word_list = [x.strip() for x in file]
 
-        self.possitional_letter_count = {}
+        self.positional_letter_count = {}
+
+
         self.letters_count = {}
         self.words_score = {}
 
@@ -120,6 +122,7 @@ class WordList():
     "Instead of choosing the first word from the list of possible ones, I will use different approach"
     "I will create a method that counts every occurrance of letter in the list, and generate score"
     "for every word, basing on those counts."
+
     def generate_letter_count(self):
         self.letters_count = {x: 0 for x in "abcdefghijklmnopqrstuvwxyz"}
         for word in self.word_list:
@@ -146,8 +149,35 @@ class WordList():
 
         return random.choice(best_words)
 
+############################################################################################
+
     def generate_positional_letter_count(self):
-        pass
+        self.positional_letter_count = {x: {a: 0 for a in "abcdefghijklmnopqrstuvwxyz"} for x in range(5)}
 
+        for word in self.word_list:
+            for i, letter in enumerate(word):
+                self.positional_letter_count[i][letter] += 1
 
+    def generate_positional_scores(self):
+        self.generate_positional_letter_count()
+        self.words_score = {}
 
+        for word in self.word_list:
+            word_score = 0
+            letters = {x: 0 for x in word}
+            for index, letter in enumerate(word):
+                letter_score = self.positional_letter_count[index][letter]
+                if letter_score > letters[letter]:
+                    letters[letter] = letter_score
+            word_score = sum(letters.values())
+            self.words_score[word] = word_score
+
+    def best_positional_word(self):
+        self.generate_positional_scores()
+        best_words = []
+        maximum = max(self.words_score.values())
+        for word, score in self.words_score.items():
+            if score == maximum:
+                best_words.append(word)
+
+        return random.choice(best_words)
